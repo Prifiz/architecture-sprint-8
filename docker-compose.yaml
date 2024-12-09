@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  apps:
+    driver: bridge
+
 services:
   keycloak_db:
     image: postgres:14
@@ -11,8 +15,11 @@ services:
       - ./postgres-keycloak-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    networks:
+      - apps
   keycloak:
     image: quay.io/keycloak/keycloak:21.1
+    container_name: keycloak
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -29,6 +36,8 @@ services:
       - "8080:8080"
     depends_on:
       - keycloak_db
+    networks:
+      - apps
   frontend:
     build:
       context: ./frontend
@@ -36,7 +45,22 @@ services:
     ports:
       - "3000:3000"
     environment:
-      REACT_APP_API_URL: http://localhost:8000
-      REACT_APP_KEYCLOAK_URL: http://localhost:8080
+      REACT_APP_API_URL: backend:8000
+      REACT_APP_KEYCLOAK_URL: keycloak:8080
       REACT_APP_KEYCLOAK_REALM: reports-realm
       REACT_APP_KEYCLOAK_CLIENT_ID: reports-frontend
+    networks:
+      - apps
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      - keycloak
+    container_name: backend
+    environment:
+      - KEYCLOAK_REALM_CERT_URL=http://keycloak:8080/realms/reports-realm/protocol/openid-connect/certs
+    ports:
+      - "8000:8000"
+    networks:
+      - apps

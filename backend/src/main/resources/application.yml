@@ -1,0 +1,49 @@
+#spring:
+#  application.name: sprint8
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://localhost:8080/realms/reports-realm
+#      client:
+#        registration:
+#          keycloak:
+#            client-id: reports-api
+#            client-secret: oNwoLQdvJAvRcL89SydqCWCe5ry1jMgq
+#            scope: openid
+#            redirect-uri: http://localhost:8080/login/oauth2/code/keycloak
+#        provider:
+#          keycloak:
+#            issuer-uri: http://localhost:8080/realms/reports-realm
+spring:
+  application.name: sprint8
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_REALM_CERT_URL:http://localhost:8080/realms/reports-realm/protocol/openid-connect/certs}
+
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          keycloak:
+#            client-id: reports-api
+#            client-secret: oNwoLQdvJAvRcL89SydqCWCe5ry1jMgq
+#            scope: openid
+#            authorization-grant-type: authorization_code
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://localhost:8080/auth/realms/reports-api
+server:
+  port: 8000
+logging:
+  level:
+    root: "info"
+    org.springframework.security: "trace"
+
+
+#  token.converter.principal-attribute=preferred_username
+#  token.converter.resource-id=demo-app
